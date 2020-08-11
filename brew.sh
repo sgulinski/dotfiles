@@ -1,131 +1,48 @@
 #!/usr/bin/env bash
+set -e
 
-# Install command-line tools using Homebrew.
+script_run_path=${PWD}
+script_path="$( cd $( dirname $0 ) && pwd )"
+script_name=$(basename $0)
 
-# Make sure we’re using the latest Homebrew.
-brew update
+# Check number of input parameters
+if [[ $# -ne 0 ]]; then
+  echo $"Incorrect number of parameters provided ($#)" >&2
+  echo $'\nUsage:' >&2
+  echo $"  $script_name" >&2
+  exit 1
+fi
 
-# Upgrade any already-installed formulae.
-brew upgrade
+# Update/install Homebrew
+echo 'Updating/installing Homebrew'
+if ( brew --version; ) < /dev/null > /dev/null 2>&1; then
+  echo 'Homebrew already installed - updating'
+  brew update
+else
+  echo 'Homebrew not installed - installing'
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
 
-# Save Homebrew’s installed location.
-BREW_PREFIX=$(brew --prefix)
+# Update/install Mac App Store CLI
+echo 'Updating/installing Mac App Store CLI'
+if ( mas version; ) < /dev/null > /dev/null 2>&1; then
+  echo 'Mac App Store CLI already installed - updating'
+  brew upgrade mas
+else
+  echo 'Mac App Store CLI not installed - installing'
+  brew install mas
+fi
 
-# Install GNU core utilities (those that come with macOS are outdated).
-# Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
-# See: https://ryanparman.com/posts/2019/using-gnu-command-line-tools-in-macos-instead-of-freebsd-tools/
-# See: https://www.topbug.net/blog/2013/04/14/install-and-use-gnu-command-line-tools-in-mac-os-x/
-brew install coreutils
-ln -s "${BREW_PREFIX}/bin/gsha256sum" "${BREW_PREFIX}/bin/sha256sum"
+# Install and clean up
+cd $script_path
+echo 'Installing Homebrew formulas, Homebrew casks and Mac App Store applications'
+brew bundle
 
-# Install some other useful utilities like `sponge`.
-brew install moreutils
-# Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
-brew install findutils
-# Install GNU `sed`, overwriting the built-in `sed`.
-brew install gnu-sed --with-default-names
-# Install a modern version of Bash.
-brew install bash
-brew install bash-completion2
-
-# Switch to using brew-installed bash as default shell
-if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
-  echo "${BREW_PREFIX}/bin/bash" | sudo tee -a /etc/shells;
-  chsh -s "${BREW_PREFIX}/bin/bash";
-fi;
-
-# Install `wget` with IRI support.
-brew install wget --with-iri
-
-# Install GnuPG to enable PGP-signing commits.
-brew install gnupg
-
-# Install other GNU non-core utilities
-brew install diffutils
-brew install ed
-brew install emacs
-brew install gawk
-# gdb requires further actions to make it work. See `brew info gdb`.
-brew install gdb
-brew install gnu-indent
-brew install gnu-tar
-brew install gnu-which
-brew install gnutls
-brew install gpatch
-brew install gzip
-brew install m4
-brew install make
-brew install nano
-brew install watch
-brew install wdiff
-
-# Install more recent versions of some macOS tools.
-brew install vim --with-override-system-vi
-brew install grep
-brew install openssh
-brew install screen
-brew install php
-brew install gmp
-
-# Install font tools.
-brew tap bramstein/webfonttools
-brew install sfnt2woff
-brew install sfnt2woff-zopfli
-brew install woff2
-
-# Install some CTF tools; see https://github.com/ctfs/write-ups.
-brew install aircrack-ng
-brew install bfg
-brew install binutils
-brew install binwalk
-brew install cifer
-brew install dex2jar
-brew install dns2tcp
-brew install fcrackzip
-brew install foremost
-brew install hashpump
-brew install hydra
-brew install john
-brew install knock
-brew install netpbm
-brew install nmap
-brew install pngcheck
-brew install socat
-brew install sqlmap
-brew install tcpflow
-brew install tcpreplay
-brew install tcptrace
-brew install ucspi-tcp # `tcpserver` etc.
-brew install xpdf
-brew install xz
-
-# Install other useful binaries.
-brew install ack
-#brew install exiv2
-brew install dive
-brew install git
-brew install git-lfs
-brew install gradle
-brew install gs
-brew install imagemagick --with-webp
-brew install jenv
-brew install lastpass-cli
-brew install lua
-brew install lynx
-brew install maven
-brew install mc
-brew install packer
-brew install p7zip
-brew install pigz
-brew install pinentry-mac
-brew install pv
-brew install rename
-brew install rlwrap
-brew install ssh-copy-id
-brew install tree
-brew install unix2dos
-brew install vbindiff
-brew install zopfli
-
-# Remove outdated versions from the cellar.
+echo 'Removing outdated versions from the Homebrew cellar'
 brew cleanup
+
+echo 'Checking for potential problems with Homebrew'
+set +e
+brew doctor
+set -e
+cd $script_run_path
