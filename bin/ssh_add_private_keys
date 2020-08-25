@@ -1,0 +1,102 @@
+#!/bin/bash
+set -e
+
+
+script_path="$( cd $( dirname $0 ) && pwd )"
+script_name=$(basename $0)
+ssh_keys_path="$HOME/.ssh"
+
+
+[ -f $script_path/../.extra ] || { echo "Error: missing $script_path/../.extra"; exit 1; }
+source $script_path/../.extra
+
+[ ! -z "$LPASS_USERNAME" ] || { echo "Error: \$LPASS_USERNAME not set in $script_path/../.extra"; exit 1; }
+[ ! -z "$SSH_KEYS" ] || { echo "Error: \$SSH_KEYS not set in $script_path/../.extra"; exit 1; }
+
+
+check_parameters() {
+  if [[ $# -ne 0 ]]; then
+    echo $"Incorrect number of parameters provided ($#)" >&2
+    echo $'\nUsage:' >&2
+    echo $"  $script_name" >&2
+    exit 1
+  fi
+}
+
+
+lpass_command_exists() {
+  command -v lpass >/dev/null 2>&1
+}
+
+
+check_lpass_command_exists() {
+  if ! lpass_command_exists; then
+    echo "lpass (command line interface for LastPass) required, but not found. " \
+      "Aborting" >&2
+    exit 1
+  fi
+}
+
+
+logout_from_lpass() {
+  lpass status | grep -q $LPASS_USERNAME && logged_to_lpass=$? || logged_to_lpass=$?
+  
+  if [[ $logged_to_lpass -eq 0 ]]; then    
+    echo 'Logging out from LastPass'
+    lpass logout -f
+  fi
+}
+
+
+catch() {
+  if [[ $1 -ne 0 ]]; then
+    echo "Error ($1) occurred in line $2 of $script_name"
+    logout_from_lpass
+  fi
+}
+
+
+add_ssh_private_keys() {
+  echo 'Adding ssh keys to ssh authentication agent'
+  
+  trap 'catch $? $LINENO' EXIT
+  
+  for key in "${SSH_KEYS[@]}"
+  do
+    echo "Adding key: $key"    
+    ssh-add -L | grep -q $key && key_exists=$? || key_exists=$?
+    
+    if [[ $key_exists -eq 0 ]]; then
+      echo "ssh key $key already added to the ssh authentication agent - skipping"
+    else
+      lpass status | grep -q $LPASS_USERNAME || logged_to_lpass=$?
+
+      if [[ $logged_to_lpass -ne 0 ]]; then    
+        echo 'Logging to LastPass'
+	lpass login $LPASS_USERNAME
+      fi
+
+      echo $"Adding $key to an ssh agent" 
+      key_passphrase=$(lpass show --field=Passphrase $key)
+
+      # Add ssh key to an ssh agent using passphrase stored in the LastPass vault
+      expect -c "spawn ssh-add \"$ssh_keys_path/$key\"
+        expect \"Enter passphrase\"
+        send \"$key_passphrase\r\"
+        expect eof"
+    fi
+  done
+
+  logout_from_lpass
+}
+
+
+main() {
+  check_parameters $@
+  check_lpass_command_exists
+  add_ssh_private_keys
+}
+
+
+main $@
+
