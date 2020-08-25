@@ -9,11 +9,13 @@ alias ~="cd ~" # `cd` is probably faster to type though
 alias -- -="cd -"
 
 # Shortcuts
-alias d="cd ~/Documents/Dropbox"
+alias d="cd ~/projects/dropbox"
 alias dl="cd ~/Downloads"
 alias dt="cd ~/Desktop"
 alias p="cd ~/projects"
 alias g="git"
+alias gh="cd ~/projects/github"
+alias ghs="cd ~/projects/github/sgulinski"
 
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
@@ -52,8 +54,8 @@ alias week='date +%V'
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
 
 # Google Chrome
-alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
-alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
+# [G] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
+alias chrome="if ! ps ux | grep -q '[G]oogle Chrome.app'; then ( nohup /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome & ) > /dev/null 2>&1; fi"
 
 # IP addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
@@ -136,7 +138,7 @@ alias pumpitup="osascript -e 'set volume output volume 100'"
 
 # Kill all the tabs in Chrome to free up memory
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
-alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+alias chromekill="ps ux | grep '[C]hrome Helper (Renderer) --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
@@ -146,3 +148,7 @@ alias reload="exec ${SHELL} -l"
 
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'
+
+# Activity Monitor
+# [A] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
+alias activity="if ! ps ux | grep -q '[A]ctivity Monitor.app' ; then ( nohup /System/Applications/Utilities/Activity\ Monitor.app/Contents/MacOS/Activity\ Monitor & ) > /dev/null 2>&1 ; fi"
