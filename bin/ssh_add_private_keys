@@ -7,11 +7,11 @@ script_name=$(basename $0)
 ssh_keys_path="$HOME/.ssh"
 
 
-[ -f $script_path/../.extra ] || { echo "Error: missing $script_path/../.extra"; exit 1; }
-source $script_path/../.extra
+[ -f $script_path/../../extra/.extra ] || { echo "Error: missing $script_path/../../extra/.extra"; exit 1; }
+source $script_path/../../extra/.extra
 
-[ ! -z "$LPASS_USERNAME" ] || { echo "Error: \$LPASS_USERNAME not set in $script_path/../.extra"; exit 1; }
-[ ! -z "$SSH_KEYS" ] || { echo "Error: \$SSH_KEYS not set in $script_path/../.extra"; exit 1; }
+[ ! -z "$LPASS_USERNAME" ] || { echo "Error: \$LPASS_USERNAME not set in $script_path/../../extra/.extra"; exit 1; }
+[ ! -z "$SSH_KEYS" ] || { echo "Error: \$SSH_KEYS not set in $script_path/../../extra/.extra"; exit 1; }
 
 
 check_parameters() {
