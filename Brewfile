@@ -99,6 +99,10 @@ brew "unix2dos"
 brew "vbindiff"
 brew "zopfli"
 
+# Install Go and Node.js
+brew "go"
+brew "node"
+
 # Mac App Store applications
 mas "ClientLaunch", id: 1251358171
 mas "GoodNotes", id: 1444383602
