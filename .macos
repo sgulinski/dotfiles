@@ -847,11 +847,11 @@ defaults write com.irradiatedsoftware.SizeUp ShowPrefsOnNextStart -bool false
 cp -r init/Preferences.sublime-settings ~/Library/Application\ Support/Sublime\ Text*/Packages/User/Preferences.sublime-settings 2> /dev/null
 
 ###############################################################################
-# Spectacle.app                                                               #
+# Rectangle.app                                                               #
 ###############################################################################
 
 # Set up my preferred keyboard shortcuts
-cp -r init/spectacle.json ~/Library/Application\ Support/Spectacle/Shortcuts.json 2> /dev/null
+cp -r init/com.knollsoft.Rectangle.plist ~/Library/Preferences/com.knollsoft.Rectangle.plist 2> /dev/null
 
 ###############################################################################
 # Transmission.app                                                            #
@@ -939,7 +939,7 @@ for app in "Activity Monitor" \
 	"Photos" \
 	"Safari" \
 	"SizeUp" \
-	"Spectacle" \
+	"Rectangle" \
 	"SystemUIServer" \
 	"Terminal" \
 	"Transmission" \
