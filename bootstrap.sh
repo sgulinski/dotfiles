@@ -5,11 +5,12 @@ script_run_path=${PWD}
 script_path="$( cd $( dirname $0 ) && pwd )"
 script_name=$(basename $0)
 
-[ -f $script_path/../extra/.extra ] || { echo "Error: missing $script_path/../extra/.extra"; exit 1; }
-source $script_path/../extra/.extra
+[ -f $script_path/.extra ] \
+  || { echo "Error: missing $script_path/.extra"; exit 1; }
+source $script_path/.extra
 
-[ ! -z "$PROJECTS_DIR" ] || { echo "Error: \$PROJECTS_DIR not set in $script_path/.extra"; exit 1; }
-
+[ ! -z "$PROJECTS_DIR" ] \
+  || { echo "Error: \$PROJECTS_DIR not set in $script_path/.extra"; exit 1; }
 
 if [[ $# -ne 0 ]]; then
   echo $"Incorrect number of parameters provided ($#)" >&2
@@ -31,6 +32,7 @@ fi
 
 # Clone git@github.com:sgulinski/extra.git
 cd $PROJECTS_DIR/github/sgulinski;
+
 if [ ! -d $PROJECTS_DIR/github/sgulinski/extra ]; then
   echo 'Cloning extra repository'
   git clone git@github.com:sgulinski/extra.git ./extra;
@@ -42,6 +44,7 @@ fi
 
 # Clone git@github.com:sgulinski/dotfiles.git
 cd $PROJECTS_DIR/github/sgulinski;
+
 if [ ! -d $PROJECTS_DIR/github/sgulinski/dotfiles ]; then
   echo 'Cloning dotfiles repository'
   git clone git@github.com:sgulinski/dotfiles.git ./dotfiles;
@@ -54,24 +57,21 @@ fi
 cd $script_run_path
 
 # Create symbolic links
-echo "Creating symbolink link pointing from $PROJECTS_DIR/github/sgulinski/extra/.extra to $HOME"
+echo "Creating symbolic link for .extra"
 ln -sfn $PROJECTS_DIR/github/sgulinski/extra/.extra $HOME/.extra
 
-echo "Creating symbolink links pointing from $PROJECTS_DIR/github/sgulinski/dotfiles/.* to $HOME"
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/bin $HOME/bin
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.aliases $HOME/.aliases
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.bash_profile $HOME/.bash_profile
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.bash_prompt  $HOME/.bash_prompt
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.bashrc $HOME/.bashrc
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.gitconfig $HOME/.gitconfig
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.gitconfig $HOME/.gitconfig
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.gitignore $HOME/.gitignore
+# Delete directories if exist - ln -sfn on macOS does not work as intended
+for dir in {.mc,.vim,bin,init}; do
+  [ -d $HOME/$dir ] && { rm -rf $HOME/$dir; }
+done;
+unset dir;
 
-[ -d $HOME/.mc ] && { rm -rf $HOME/.mc; } 
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.mc $HOME/.mc
+for file in {.aliases,.bash_profile,.bash_prompt,.bashrc,.curlrc,\
+.editorconfig,.exports,.functions,.gdbinit,.gitattributes,.gitconfig,\
+.gitignore,.gvimrc,.hushlogin,.inputrc,.macos*,.mc,.path,.screenrc,\
+.tmux.conf,.vim,.vimrc,.wgetrc,Brewfile,bin,bootstrap.sh,brew.sh,init}; do
 
-[ -d $HOME/.vim ] && { rm -rf $HOME/.vim; } 
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.vim $HOME/.vim
-
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.vimrc $HOME/.vimrc
-ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/.wgetrc $HOME/.wgetrc
+  echo "Creating symbolic link for $file"
+  ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/$file $HOME/$file
+done;
+unset file;
