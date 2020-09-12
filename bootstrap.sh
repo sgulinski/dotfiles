@@ -72,11 +72,17 @@ done;
 unset dir;
 
 for file in {.aliases,.bash_profile,.bash_prompt,.bashrc,.curlrc,\
-.editorconfig,.exports,.functions,.gdbinit,.gitattributes,.gitconfig,\
-.gitignore,.gvimrc,.hushlogin,.inputrc,.macos*,.mc,.path,.screenrc,\
-.tmux.conf,.vim,.vimrc,.wgetrc,Brewfile,bin,bootstrap.sh,brew.sh,init}; do
+.editorconfig,.exports,.functions,.gdbinit,.gitattributes,.gitignore,\
+.gvimrc,.hushlogin,.inputrc,.macos*,.mc,.path,.screenrc,\.tmux.conf,\
+.vim,.vimrc,.wgetrc,Brewfile,bin,bootstrap.sh,brew.sh,init}; do
 
   echo "Creating symbolic link for $file"
   ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/$file $HOME/$file
 done;
 unset file;
+
+# .gitconfig has sensitive data added by sourcing .extra in .bash_profile.
+# Creating symlink would mark git status for .gitconfig as modified and
+# we would risk committing sensitive information
+echo "Copying .gitconfig"
+cp $PROJECTS_DIR/github/sgulinski/dotfiles/.gitconfig ~/.gitconfig
