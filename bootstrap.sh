@@ -5,9 +5,14 @@ script_run_path=${PWD}
 script_path="$( cd $( dirname $0 ) && pwd )"
 script_name=$(basename $0)
 
-[ -f $script_path/.extra ] \
-  || { echo "Error: missing $script_path/.extra"; exit 1; }
-source $script_path/.extra
+if [ -f $script_path/.extra ]; then
+  source $script_path/.extra
+elif [ -f $script_path/../extra/.extra ]; then
+  source $script_path/../extra/.extra
+else
+  echo "Error: missing $script_path/.extra and $script_path/../extra/.extra"
+  exit 1
+fi
 
 [ ! -z "$PROJECTS_DIR" ] \
   || { echo "Error: \$PROJECTS_DIR not set in $script_path/.extra"; exit 1; }
