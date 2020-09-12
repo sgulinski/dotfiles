@@ -100,7 +100,7 @@
 	untrackedCache = true
 
 	autocrlf = input
-	editor = vi
+	editor = vim
 
 [color]
 
