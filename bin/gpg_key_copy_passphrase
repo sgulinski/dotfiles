@@ -3,7 +3,6 @@ set -e
 
 script_path="$( cd $( dirname $0 ) && pwd )"
 script_name=$(basename $0)
-ssh_keys_path="$HOME/.ssh"
 
 if [ -f $script_path/../.extra ]; then
   source $script_path/../.extra
@@ -16,9 +15,6 @@ fi
 
 [ ! -z "$LPASS_USERNAME" ] \
   || { echo "Error: \$LPASS_USERNAME not set in `.extra`"; exit 1; }
-
-[ ! -z "$SSH_KEYS" ] \
-  || { echo "Error: \$SSH_KEYS not set in `.extra`"; exit 1; }
 
 check_parameters() {
   if [[ $# -ne 0 ]]; then
@@ -57,36 +53,18 @@ catch() {
   fi
 }
 
-add_ssh_private_keys() {
-  echo 'Adding ssh keys to ssh authentication agent'
-
+copy_gpg_key_passphrase() {
   trap 'catch $? $LINENO' EXIT
 
-  for key in "${SSH_KEYS[@]}"
-  do
-    echo "Adding key: $key"
-    ssh-add -L | grep -q $key && key_exists=$? || key_exists=$?
+  lpass status | grep -q $LPASS_USERNAME || logged_to_lpass=$?
 
-    if [[ $key_exists -eq 0 ]]; then
-      echo "ssh key $key already added to the ssh authentication agent - skipping"
-    else
-      lpass status | grep -q $LPASS_USERNAME || logged_to_lpass=$?
+  if [[ $logged_to_lpass -ne 0 ]]; then
+    echo 'Logging to LastPass'
+    lpass login $LPASS_USERNAME
+  fi
 
-      if [[ $logged_to_lpass -ne 0 ]]; then
-        echo 'Logging to LastPass'
-        lpass login $LPASS_USERNAME
-      fi
-
-      echo $"Adding $key to an ssh agent"
-      key_passphrase=$(lpass show --field=Passphrase $key)
-
-      # Add ssh key to an ssh agent using passphrase stored in the LastPass vault
-      expect -c "spawn ssh-add \"$ssh_keys_path/$key\"
-        expect \"Enter passphrase\"
-        send \"$key_passphrase\r\"
-        expect eof"
-    fi
-  done
+  echo 'Copying passphrase for private gpg key to clipboard'
+  lpass show --clip --field=Passphrase gpg
 
   logout_from_lpass
 }
@@ -94,7 +72,7 @@ add_ssh_private_keys() {
 main() {
   check_parameters $@
   check_lpass_command_exists
-  add_ssh_private_keys
+  copy_gpg_key_passphrase
 }
 
 main $@
