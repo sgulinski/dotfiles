@@ -5,6 +5,13 @@ script_run_path=${PWD}
 script_path="$( cd $( dirname $0 ) && pwd )"
 script_name=$(basename $0)
 
+if [[ $# -ne 0 ]]; then
+  echo $"Incorrect number of parameters provided ($#)" >&2
+  echo $'\nUsage:' >&2
+  echo $"  $script_name" >&2
+  exit 1
+fi
+
 if [ -f $script_path/.extra ]; then
   source $script_path/.extra
 elif [ -f $script_path/../extra/.extra ]; then
@@ -15,14 +22,7 @@ else
 fi
 
 [ ! -z "$PROJECTS_DIR" ] \
-  || { echo "Error: \$PROJECTS_DIR not set in $script_path/.extra"; exit 1; }
-
-if [[ $# -ne 0 ]]; then
-  echo $"Incorrect number of parameters provided ($#)" >&2
-  echo $'\nUsage:' >&2
-  echo $"  $script_name" >&2
-  exit 1
-fi
+  || { echo "Error: \$PROJECTS_DIR not set in `.extra`"; exit 1; }
 
 # Add private ssh keys
 $script_path/bin/ssh_add_private_keys
