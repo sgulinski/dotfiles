@@ -972,6 +972,13 @@ defaults write com.twitter.twitter-mac ShowFullNames -bool true
 defaults write com.twitter.twitter-mac HideInBackground -bool true
 
 ###############################################################################
+# Fonts                                                                       #
+###############################################################################
+
+# Install custom fonts
+cp $HOME/fonts/* $HOME/Library/Fonts
+
+###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################
 

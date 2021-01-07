@@ -66,7 +66,7 @@ echo "Creating symbolic link for .extra"
 ln -sfn $PROJECTS_DIR/github/sgulinski/extra/.extra $HOME/.extra
 
 # Delete directories if exist - ln -sfn on macOS does not work as intended
-for dir in {.mc,.vim,bin,init}; do
+for dir in {.mc,.vim,bin,fonts,init}; do
   [ -d $HOME/$dir ] && { rm -rf $HOME/$dir; }
 done;
 unset dir;
@@ -74,7 +74,7 @@ unset dir;
 for file in {.aliases,.bash_profile,.bash_prompt,.bashrc,.curlrc,\
 .editorconfig,.exports,.functions,.gdbinit,.gitattributes,.gitignore,\
 .gvimrc,.hushlogin,.inputrc,.macos*,.mc,.path,.screenrc,\.tmux.conf,\
-.vim,.vimrc,.wgetrc,Brewfile,bin,bootstrap.sh,brew.sh,init}; do
+.vim,.vimrc,.wgetrc,Brewfile,bin,bootstrap.sh,brew.sh,fonts,init}; do
 
   echo "Creating symbolic link for $file"
   ln -sfn $PROJECTS_DIR/github/sgulinski/dotfiles/$file $HOME/$file
